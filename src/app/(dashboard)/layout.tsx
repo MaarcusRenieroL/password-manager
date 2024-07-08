@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
-  return <div className="h-full w-full">{children}</div>;
+  return <div className="h-full w-full p-10">{children}</div>;
 }
