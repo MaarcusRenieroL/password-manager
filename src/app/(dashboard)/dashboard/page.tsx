@@ -1,3 +1,4 @@
+import { PasswordsTableShell } from "~/components/table-shell/passwords";
 import { Button } from "~/components/ui/button";
 
 export default function DashboardPage() {
@@ -8,7 +9,7 @@ export default function DashboardPage() {
         <Button>Add New Password</Button>
       </div>
       <hr className="my-5" />
-      Data table
+      <PasswordsTableShell />
     </div>
   );
 }
