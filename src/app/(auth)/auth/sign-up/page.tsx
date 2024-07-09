@@ -15,6 +15,10 @@ import { Label } from "~/components/ui/label";
 import { Input } from "~/components/ui/input";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
+import type { z } from "zod";
+import { registerSchema } from "~/lib/types/zod-schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { client } from "~/lib/trpc/client";
 import {
   Form,
   FormLabel,
@@ -23,10 +27,12 @@ import {
   FormControl,
   FormMessage,
 } from "~/components/ui/form";
+import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
 export default function SignUpPage() {
-  const form = useForm({
+  const form = useForm<z.infer<typeof registerSchema>>({
+    resolver: zodResolver(registerSchema),
     defaultValues: {
       email: "",
       password: "",
@@ -38,8 +44,22 @@ export default function SignUpPage() {
 
   const router = useRouter();
 
-  const handleSignUp = async (data: any) => {
-    console.log(data);
+  const { mutateAsync: addNewUser } = client.user.addUser.useMutation({
+    onSuccess: () => {
+      toast("Success", {
+        description: "User created successfully",
+      });
+    },
+    onError: (error) => {
+      toast("Error", {
+        description: "Error creating user",
+      });
+      console.log(error);
+    },
+  });
+
+  const handleSignUp = async (data: z.infer<typeof registerSchema>) => {
+    await addNewUser(data);
     router.push("/auth/sign-in");
   };
 
