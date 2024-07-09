@@ -15,6 +15,9 @@ import { Label } from "~/components/ui/label";
 import { Input } from "~/components/ui/input";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
+import type { z } from "zod";
+import { loginSchema } from "~/lib/types/zod-schema";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
   FormField,
@@ -23,25 +26,68 @@ import {
   FormItem,
   FormLabel,
 } from "~/components/ui/form";
+import { useRouter } from "next/navigation";
+import { type Dispatch, type SetStateAction, useState } from "react";
+import { toast } from "sonner";
+import { signIn } from "next-auth/react";
+import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 export default function SignInPage() {
-  const form = useForm({
+  const router = useRouter();
+  const form = useForm<z.infer<typeof loginSchema>>({
+    resolver: zodResolver(loginSchema),
     defaultValues: {
       email: "",
       password: "",
     },
   });
+  const [loading, setLoading] = useState(false);
 
-  const handleSignIn = async (data: any) => {
-    console.log(data);
+  async function handlecredentialLogin(
+    values: z.infer<typeof loginSchema>,
+    setLoading: Dispatch<SetStateAction<boolean>>,
+    router: AppRouterInstance,
+  ) {
+    setLoading(true);
+    try {
+      const response = await signIn("credentials", {
+        email: values.email,
+        password: values.password,
+        redirect: false,
+      });
+      if (response) {
+        if (response.error) {
+          toast("Error logging in", {
+            description: response.error,
+          });
+          return null;
+        }
+        toast("Logged in successfully", {
+          description: "Redirecting you to your dashboard",
+        });
+        router.push("/dashboard");
+      }
+    } catch (error) {
+      console.log(error);
+      toast("Error logging in", {
+        description: error.message,
+      });
+    } finally {
+      setLoading(false);
+    }
+    return false;
+  }
+
+  const handleSignIn = async (data: z.infer<typeof loginSchema>) => {
+    await handlecredentialLogin(data, setLoading, router);
   };
 
   return (
-    <div className="flex items-center justify-center h-full w-full">
+    <div className="flex items-center justify-center h-screen w-screen">
       <Card className="p-10">
         <CardHeader className="flex flex-col justify-center items-center space-y-4 text-center">
           <Image src={Logo} alt="Logo" width={25} height={25} />
-          <CardTitle>Sign in to your password app</CardTitle>
+          <CardTitle>Sign in to your task management app</CardTitle>
           <CardDescription>
             Welcome back! Please sign in to continue
           </CardDescription>
@@ -53,6 +99,7 @@ export default function SignInPage() {
                 <FormField
                   control={form.control}
                   name="email"
+                  disabled={loading}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
@@ -72,6 +119,7 @@ export default function SignInPage() {
                 <FormField
                   control={form.control}
                   name="password"
+                  disabled={loading}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
@@ -89,7 +137,9 @@ export default function SignInPage() {
                   )}
                 />
               </div>
-              <Button className="w-full mt-5">Sign in</Button>
+              <Button className="w-full mt-5" type="submit" disabled={loading}>
+                Sign in
+              </Button>
             </form>
           </Form>
         </CardContent>
