@@ -12,6 +12,14 @@ import {
 } from "~/components/ui/dialog";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
+import {
+  Select,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectContent,
+  SelectValue,
+} from "~/components/ui/select";
 
 export const AddNewPasswordModal: FC = () => {
   return (
@@ -50,8 +58,20 @@ export const AddNewPasswordModal: FC = () => {
               <Button variant="outline">Generate a password</Button>
             </div>
           </div>
+          <div className="space-y-2">
+            <Label>Category</Label>
+            <Select>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="category-1">Category 1</SelectItem>
+                <SelectItem value="category-2">Category 2</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
-        <DialogFooter>
+        <DialogFooter className="mt-5">
           <DialogClose asChild>
             <Button variant="outline">Cancel</Button>
           </DialogClose>
