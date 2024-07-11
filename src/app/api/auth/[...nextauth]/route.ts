@@ -1,3 +1,7 @@
-import { handlers } from "~/lib/next-auth";
+import NextAuth from "next-auth";
 
-export const { GET, POST } = handlers;
+import { authOptions } from "~/lib/auth";
+
+// eslint-disable-next-line
+const handler = NextAuth(authOptions);
+export { handler as GET, handler as POST };

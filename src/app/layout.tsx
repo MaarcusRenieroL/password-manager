@@ -3,7 +3,7 @@ import { Poppins } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "~/components/navigation/navbar";
 import { Providers } from "~/components/providers";
-import { auth } from "~/lib/next-auth";
+import { getServerAuthSession } from "~/lib/auth";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -20,7 +20,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await auth();
+  const session = await getServerAuthSession();
 
   return (
     <html lang="en">

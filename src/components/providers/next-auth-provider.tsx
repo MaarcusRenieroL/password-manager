@@ -1,3 +1,5 @@
+"use client";
+
 import type { FC, ReactNode } from "react";
 import { SessionProvider } from "next-auth/react";
 import { Session } from "next-auth";

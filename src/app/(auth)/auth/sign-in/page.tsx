@@ -67,7 +67,7 @@ export default function SignInPage() {
         });
         router.push("/dashboard");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
       toast("Error logging in", {
         description: error.message,
