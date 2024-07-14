@@ -83,7 +83,7 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="flex items-center justify-center h-screen w-screen">
+    <div className="flex items-center justify-center h-full w-full">
       <Card className="p-10">
         <CardHeader className="flex flex-col justify-center items-center space-y-4 text-center">
           <Image src={Logo} alt="Logo" width={25} height={25} />

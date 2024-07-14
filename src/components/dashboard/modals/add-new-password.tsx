@@ -1,4 +1,10 @@
-import { FC } from "react";
+"use client";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import { FC, useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -10,73 +16,183 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
+import {
+  Form,
+  FormItem,
+  FormField,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import {
-  Select,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectContent,
-  SelectValue,
-} from "~/components/ui/select";
+import { client } from "~/lib/trpc/client";
+import { addNewPasswordSchema } from "~/lib/types/zod-schema";
 
 export const AddNewPasswordModal: FC = () => {
+  const [loading, setLoading] = useState(false);
+
+  const form = useForm<z.infer<typeof addNewPasswordSchema>>({
+    mode: "onChange",
+    resolver: zodResolver(addNewPasswordSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+      userName: "",
+      websiteUrl: "https://",
+      websiteName: "",
+    },
+  });
+
+  const { mutateAsync: addNewPassword } =
+    client.password.addNewPassword.useMutation({
+      onSuccess: (data) => {
+        toast("Success", {
+          description: data.message,
+        });
+      },
+      onError: (error) => {
+        toast("Error", {
+          description: error.message,
+        });
+      },
+    });
+
+  const handleSubmit = async (data: z.infer<typeof addNewPasswordSchema>) => {
+    try {
+      setLoading(true);
+      await addNewPassword(data);
+    } catch (error: any) {
+      setLoading(false);
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <Dialog>
       <DialogTrigger asChild>
         <Button>Add New Password</Button>
       </DialogTrigger>
       <DialogContent className="max-w-4xl">
-        <DialogHeader>
-          <DialogTitle>Add New Password</DialogTitle>
-          <DialogDescription>
-            Fill out the form to add new password
-          </DialogDescription>
-        </DialogHeader>
-        <div className="space-y-5">
-          <div className="space-y-2">
-            <Label>Website Name</Label>
-            <Input placeholder="Enter Website Name" type="text" />
-          </div>
-          <div className="space-y-2">
-            <Label>Website URL</Label>
-            <Input placeholder="Enter Website URL" type="url" />
-          </div>
-          <div className="space-y-2">
-            <Label>Username</Label>
-            <Input placeholder="Enter Username" type="text" />
-          </div>
-          <div className="space-y-2">
-            <Label>Email</Label>
-            <Input placeholder="Enter Email" type="email" />
-          </div>
-          <div className="space-y-2">
-            <Label>Password</Label>
-            <div className="flex w-full space-x-5">
-              <Input placeholder="Enter Password" type="password" />
-              <Button variant="outline">Generate a password</Button>
-            </div>
-          </div>
-          <div className="space-y-2">
-            <Label>Category</Label>
-            <Select>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select category" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="category-1">Category 1</SelectItem>
-                <SelectItem value="category-2">Category 2</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-        <DialogFooter className="mt-5">
-          <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
-          </DialogClose>
-          <Button>Save Changes</Button>
-        </DialogFooter>
+        <Form {...form}>
+          <form
+            className="space-y-5"
+            onSubmit={form.handleSubmit(handleSubmit)}
+          >
+            <DialogHeader>
+              <DialogTitle>Add New Password</DialogTitle>
+              <DialogDescription>
+                Fill out the form to add new password
+              </DialogDescription>
+            </DialogHeader>
+            <FormField
+              name="websiteName"
+              disabled={loading}
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    <Label>Website Name</Label>
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Enter Website Name"
+                      type="text"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              name="websiteUrl"
+              disabled={loading}
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    <Label>Website Url</Label>
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Enter Website Url"
+                      type="url"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              name="email"
+              disabled={loading}
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    <Label>Email</Label>
+                  </FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter email" type="email" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              name="userName"
+              control={form.control}
+              disabled={loading}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    <Label>Username</Label>
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Enter username"
+                      type="text"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              name="password"
+              disabled={loading}
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    <Label>Password</Label>
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Enter password"
+                      type="password"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <DialogFooter className="mt-5">
+              <DialogClose asChild>
+                <Button disabled={loading} variant="outline">
+                  Cancel
+                </Button>
+              </DialogClose>
+              <Button disabled={loading} type="submit">
+                Save Changes
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
