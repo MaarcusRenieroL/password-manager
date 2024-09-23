@@ -43,7 +43,7 @@ export default function SignInPage() {
   });
   const [loading, setLoading] = useState(false);
 
-  async function handlecredentialLogin(
+  async function handleCredentialLogin(
     values: z.infer<typeof loginSchema>,
     setLoading: Dispatch<SetStateAction<boolean>>,
     router: AppRouterInstance,
@@ -79,7 +79,7 @@ export default function SignInPage() {
   }
 
   const handleSignIn = async (data: z.infer<typeof loginSchema>) => {
-    await handlecredentialLogin(data, setLoading, router);
+    await handleCredentialLogin(data, setLoading, router);
   };
 
   return (

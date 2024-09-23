@@ -3,9 +3,45 @@ import { privateProcedure, router } from "../trpc";
 import { TRPCError } from "@trpc/server";
 import { db } from "~/lib/db";
 import { getServerAuthSession } from "~/lib/auth";
-import bcrypt from "bcryptjs";
 
 export const passwordRouter = router({
+  getPasswords: privateProcedure.query(async ({ ctx }) => {
+    const { userId } = ctx;
+    const session = await getServerAuthSession();
+
+    if (!session) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "User not logged in",
+      });
+    }
+
+    const existingUser = await db.user.findFirst({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!existingUser) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "User not found",
+      });
+    }
+
+    if (session.user.id!== userId) {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "User not authorized",
+      });
+    }
+
+    return db.password.findMany({
+      where: {
+        userId,
+      },
+    });
+  }),
   addNewPassword: privateProcedure
     .input(addNewPasswordSchema)
     .mutation(async ({ ctx, input }) => {
@@ -61,7 +97,7 @@ export const passwordRouter = router({
             websiteUrl: websiteUrl,
             email: email,
             userName: userName,
-            password: await bcrypt.hash(password, 10),
+            password: password,
             userId: existingUser.id,
           },
         });

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
-import { Navbar } from "~/components/navigation/navbar";
 import { Providers } from "~/components/providers";
 import { getServerAuthSession } from "~/lib/auth";
 
@@ -20,12 +19,11 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await getServerAuthSession();
+  const session = await getServerAuthSession()
 
   return (
     <html lang="en">
       <body className={poppins.className}>
-        <Navbar session={session} />
         <Providers session={session}>{children}</Providers>
       </body>
     </html>

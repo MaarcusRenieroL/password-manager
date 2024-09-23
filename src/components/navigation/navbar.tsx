@@ -1,6 +1,6 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { Avatar, AvatarFallback } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,
@@ -20,7 +20,7 @@ import { Session } from "next-auth";
 import { AvatarIcon } from "@radix-ui/react-icons";
 
 type Props = {
-  session: Session | null;
+  session?: Session | null;
 };
 
 export const Navbar: FC<Props> = ({ session }) => {
@@ -74,8 +74,12 @@ export const Navbar: FC<Props> = ({ session }) => {
         </>
       ) : (
         <div className="space-x-5">
-          <Button>Sign Up</Button>
-          <Button variant="outline">Sign In</Button>
+          <Link href="/auth/sign-up">
+            <Button>Sign Up</Button>
+          </Link>
+          <Link href="/auth/sign-in">
+            <Button variant="outline">Sign In</Button>
+          </Link>
         </div>
       )}
     </div>

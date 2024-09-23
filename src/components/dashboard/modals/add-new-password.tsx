@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FC, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -28,10 +28,19 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { client } from "~/lib/trpc/client";
 import { addNewPasswordSchema } from "~/lib/types/zod-schema";
+import { generateRandomPassword } from "~/lib/utils";
+import { CopyIcon, EyeClosedIcon, EyeOpenIcon } from "@radix-ui/react-icons";
+import { Check } from "lucide-react";
+import { Loader } from "~/components/loader";
 
-export const AddNewPasswordModal: FC = () => {
+
+export const AddNewPasswordModal = () => {
   const [loading, setLoading] = useState(false);
-
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isCopying, setIsCopying] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showCopied, setShowCopied] = useState(false);
+  
   const form = useForm<z.infer<typeof addNewPasswordSchema>>({
     mode: "onChange",
     resolver: zodResolver(addNewPasswordSchema),
@@ -43,7 +52,7 @@ export const AddNewPasswordModal: FC = () => {
       websiteName: "",
     },
   });
-
+  
   const { mutateAsync: addNewPassword } =
     client.password.addNewPassword.useMutation({
       onSuccess: (data) => {
@@ -57,17 +66,47 @@ export const AddNewPasswordModal: FC = () => {
         });
       },
     });
-
+  
   const handleSubmit = async (data: z.infer<typeof addNewPasswordSchema>) => {
     try {
       setLoading(true);
+      
       await addNewPassword(data);
+      
+      console.log(data);
     } catch (error: any) {
       setLoading(false);
     } finally {
       setLoading(false);
     }
   };
+  
+  const handleCopy = () => {
+    const password = form.getValues("password");
+    
+    if (password) {
+      setIsCopying(true);
+      navigator.clipboard.writeText(password).then((r) => r);
+      toast("Password copied to clipboard", {
+        description: "You can now paste it wherever you want.",
+      });
+      setTimeout(() => {
+        setShowCopied(true);
+        setIsCopying(false);
+      }, 2000);
+    } else {
+      toast("No password to copy", {
+        description: "Generate a password first.",
+      });
+    }
+  };
+  
+  const handleGeneratePassword = () => {
+    setIsGenerating(true);
+    form.setValue("password", generateRandomPassword(20));
+    setTimeout(() => setIsGenerating(false), 1000); // Simulate delay
+  };
+  
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -161,26 +200,53 @@ export const AddNewPasswordModal: FC = () => {
                 </FormItem>
               )}
             />
-            <FormField
-              name="password"
-              disabled={loading}
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    <Label>Password</Label>
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Enter password"
-                      type="password"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="flex items-end justify-between w-full gap-5">
+              <FormField
+                name="password"
+                disabled={loading}
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormLabel>
+                      <Label>Password</Label>
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Enter password"
+                        type={showPassword ? "text" : "password"}
+                        className="w-full"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button
+                variant="outline"
+                size="icon"
+                className="p-2"
+                onClick={handleCopy}
+                disabled={isCopying}
+              >
+                {isCopying ? <Loader /> : showCopied ? <Check className="h-4 w-4" /> : <CopyIcon className="h-4 w-4" />}
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                className="p-2"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <EyeOpenIcon className="h-4 w-4" /> : <EyeClosedIcon className="h-4 w-4" />}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleGeneratePassword}
+                disabled={isGenerating}
+              >
+                {isGenerating ? <Loader /> : "Generate new password"}
+              </Button>
+            </div>
             <DialogFooter className="mt-5">
               <DialogClose asChild>
                 <Button disabled={loading} variant="outline">
@@ -188,7 +254,7 @@ export const AddNewPasswordModal: FC = () => {
                 </Button>
               </DialogClose>
               <Button disabled={loading} type="submit">
-                Save Changes
+                {loading ? <Loader /> : "Save Changes"}
               </Button>
             </DialogFooter>
           </form>
