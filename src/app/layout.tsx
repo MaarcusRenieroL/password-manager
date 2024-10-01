@@ -7,6 +7,8 @@ import { getServerAuthSession } from "~/lib/auth";
 const poppins = Poppins({
   subsets: ["latin"],
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  display: "swap",
+  adjustFontFallback: false
 });
 
 export const metadata: Metadata = {
@@ -23,7 +25,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <body className={poppins.className}>
+      <body className="">
         <Providers session={session}>{children}</Providers>
       </body>
     </html>

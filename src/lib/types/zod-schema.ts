@@ -1,7 +1,6 @@
 import { z } from "zod";
 
-export const registerSchema = z
-  .object({
+export const registerSchema = z.object({
     firstName: z.string({
       required_error: "Name is required",
     }),
@@ -84,3 +83,11 @@ export const addNewPasswordSchema = z.object({
       message: "Password must be at least 8 characters long",
     }),
 });
+
+export const addNewGroupSchema = z.object({
+  groupName: z.string({
+    required_error: "Group Name is required",
+  }).min(3, {
+    message: "Group Name must be at least 3 characters long",
+  })
+})

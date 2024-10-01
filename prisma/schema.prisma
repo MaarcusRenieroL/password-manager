@@ -23,6 +23,7 @@ model User {
   lastName  String
 
   passwords Password[]
+  groups    Group[]
 }
 
 model Password {
@@ -37,4 +38,18 @@ model Password {
 
   User   User?   @relation(fields: [userId], references: [id])
   userId String?
+
+  Group   Group?  @relation(fields: [groupId], references: [groupId])
+  groupId String?
+}
+
+model Group {
+  groupId String @id @default(uuid())
+
+  groupName String
+
+  User   User?   @relation(fields: [userId], references: [id])
+  userId String?
+
+  Passwords Password[]
 }
