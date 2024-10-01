@@ -1,7 +1,7 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
-import bcrypt from 'bcryptjs';
-
+import Papa from "papaparse";
+import { Group, Password } from "@prisma/client";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -17,7 +17,14 @@ export const generateRandomPassword = (length: number): string => {
   return password;
 };
 
-export const hashPassword = async (password: string): Promise<string> => {
-  const saltRounds = 10;
-  return await bcrypt.hash(password, saltRounds);
+
+export const exportGroups = (data: Group[]) => {
+  const csv = Papa.unparse(data);
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.setAttribute("download", "groups.csv");
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 };

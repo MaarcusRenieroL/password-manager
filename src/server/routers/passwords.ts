@@ -1,4 +1,9 @@
-import { addNewPasswordSchema, deletePasswordSchema, updatePasswordSchema } from "~/lib/types/zod-schema";
+import {
+	addNewPasswordSchema,
+	deletePasswordSchema,
+	passwordsSchema,
+	updatePasswordSchema
+} from "~/lib/types/zod-schema";
 import { privateProcedure, router } from "../trpc";
 import { TRPCError } from "@trpc/server";
 import { db } from "~/lib/db";
@@ -271,5 +276,70 @@ export const passwordRouter = router({
           message: error.message,
         });
 			}
-	})
+	}),
+	importPasswords: privateProcedure
+		.input(passwordsSchema)
+		.mutation(async ({ input, ctx }) => {
+			const { userId } = ctx
+			const session = await getServerAuthSession();
+			try {
+				
+				if (!userId) {
+					throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "User not logged in",
+          });
+				}
+				
+				const existingUser = await db.user.findFirst({
+          where: {
+            id: userId,
+          },
+        });
+				
+				if (!existingUser) {
+					throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "User not found",
+          });
+				}
+				
+				if (!session) {
+					throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "User not logged in",
+          });
+				}
+				
+				if (session.user.id!== userId) {
+					throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "User not authorized",
+          });
+				}
+				
+				const groups = await db.group.findMany({
+					where: {
+						userId: userId,
+					}
+				})
+				
+				if (!groups) {
+					throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "User does not have any groups. Create a group or upload groups.csv file",
+          });
+				}
+				
+				await db.password.createMany({
+					data: input.map((password) => ({
+						...password,
+						userId,
+					})),
+				});
+				return { success: true, message: "Passwords imported successfully" };
+			} catch (error) {
+				throw new Error("Error importing passwords");
+			}
+		}),
 });

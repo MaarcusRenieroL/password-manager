@@ -194,3 +194,5 @@ export const changePasswordFormSchema = z.object({
 export const deleteAccountSchema = z.object({
   id: z.string()
 })
+
+export const passwordsSchema = z.array(addNewPasswordSchema);

@@ -325,15 +325,19 @@ export const ViewData: FC<Props> = ({ data, groups }) => {
 									Cancel
 								</Button>
 							</DialogClose>
-							<Button disabled={loading} type="submit" size="icon">
-								{loading ? <Loader/> : <Save className="h-4 w-4" /> }
-							</Button>
-							<Button disabled={loading} type="button" size="icon" variant="destructive" onClick={() => {
-								handleDelete({ passwordId: data.passwordId });
-								router.refresh();
-							}}>
-								{loading ? <Loader/> : <Trash className="h-4 w-4" />}
-							</Button>
+							<DialogClose asChild>
+								<Button disabled={loading} type="submit" size="icon">
+									{loading ? <Loader/> : <Save className="h-4 w-4" /> }
+								</Button>
+							</DialogClose>
+							<DialogClose asChild>
+								<Button disabled={loading} type="button" size="icon" variant="destructive" onClick={() => {
+									handleDelete({ passwordId: data.passwordId });
+									router.refresh();
+								}}>
+									{loading ? <Loader/> : <Trash className="h-4 w-4" />}
+								</Button>
+							</DialogClose>
 						</DialogFooter>
 					</form>
 				</Form>
