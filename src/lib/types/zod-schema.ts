@@ -129,6 +129,20 @@ export const addNewGroupSchema = z.object({
   })
 })
 
+export const updateGroupSchema = z.object({
+  groupId: z.string(),
+  groupName: z.string({
+    required_error: "Group Name is required",
+  }).min(3, {
+    message: "Group Name must be at least 3 characters long",
+  })
+})
+
+export const deleteGroupSchema = z.object({
+  groupId: z.string(),
+})
+
+
 export const changeNameFormSchema = z.object({
   name: z.string({
     required_error: "Name is required",

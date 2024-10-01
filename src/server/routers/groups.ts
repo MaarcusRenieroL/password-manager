@@ -1,5 +1,5 @@
 import { privateProcedure, router } from "~/server/trpc";
-import { addNewGroupSchema } from "~/lib/types/zod-schema";
+import { addNewGroupSchema, deleteGroupSchema, updateGroupSchema } from "~/lib/types/zod-schema";
 import { getServerAuthSession } from "~/lib/auth";
 import { TRPCError } from "@trpc/server";
 import { db } from "~/lib/db";
@@ -29,7 +29,7 @@ export const groupRouter = router({
 			});
 		}
 		
-		if (session.user.id!== userId) {
+		if (session.user.id !== userId) {
 			throw new TRPCError({
 				code: "FORBIDDEN",
 				message: "User not authorized",
@@ -108,4 +108,131 @@ export const groupRouter = router({
 				});
 			}
 		}),
+	updateGroup: privateProcedure
+		.input(updateGroupSchema)
+		.mutation(async ({ ctx, input }) => {
+			try {
+				const { userId } = ctx;
+				const { groupId, groupName } = input;
+				const session = await getServerAuthSession();
+				
+				if (!session) {
+					throw new TRPCError({
+						code: "UNAUTHORIZED",
+						message: "User not logged in",
+					});
+				}
+				
+				const existingUser = await db.user.findFirst({
+					where: {
+						id: userId,
+					},
+				});
+				
+				if (!existingUser) {
+					throw new TRPCError({
+						code: "UNAUTHORIZED",
+						message: "User not found",
+					});
+				}
+				
+				if (session.user.id !== userId) {
+					throw new TRPCError({
+						code: "FORBIDDEN",
+						message: "User not found",
+					});
+				}
+				
+				if (!groupId || !groupName) {
+					throw new TRPCError({
+						code: "BAD_REQUEST",
+						message: "Missing required fields",
+					});
+				}
+				
+				const updatedGroup = await db.group.update({
+					where: {
+						groupId,
+					},
+					data: {
+						groupName,
+					},
+				});
+				
+				return {
+					id: updatedGroup.groupId,
+					message: "Group updated",
+				};
+			} catch (error: any) {
+				console.log(
+					"==================== UPDATE GROUP PROCEDURE ====================",
+				);
+				console.log(error.message);
+				throw new TRPCError({
+					code: "INTERNAL_SERVER_ERROR",
+					message: error.message,
+				});
+			}
+		}),
+	deleteGroup: privateProcedure.input(deleteGroupSchema).mutation(async ({ ctx, input }) => {
+		  try {
+				const { userId } = ctx;
+				const { groupId } = input;
+				const session = await getServerAuthSession();
+				
+				if (!session) {
+					throw new TRPCError({
+						code: "UNAUTHORIZED",
+						message: "User not logged in",
+					});
+				}
+				
+				const existingUser = await db.user.findFirst({
+					where: {
+						id: userId,
+					},
+				});
+				
+				if (!existingUser) {
+					throw new TRPCError({
+						code: "UNAUTHORIZED",
+						message: "User not found",
+					});
+				}
+				
+				if (session.user.id !== userId) {
+					throw new TRPCError({
+						code: "FORBIDDEN",
+						message: "User not authorized",
+					});
+				}
+				
+				if (!groupId) {
+					throw new TRPC({
+						code: "BAD_REQUEST",
+						message: "Missing required fields",
+					});
+				}
+				
+				const deletedGroup = await db.group.delete({
+					where: {
+						groupId,
+					},
+				});
+				
+				return {
+					id: deletedGroup.groupId,
+					message: "Group deleted",
+				};
+			} catch (error: any) {
+				console.log(
+          "=================== DELETE GROUP PROCEDURE ===================",
+        );
+        console.log(error.message);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: error.message,
+        });
+			}
+	})
 })

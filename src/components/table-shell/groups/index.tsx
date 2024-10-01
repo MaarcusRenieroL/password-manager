@@ -5,10 +5,9 @@ import type { ColumnDef } from "@tanstack/react-table";
 import React, { type FC, useMemo } from "react";
 import { DataTableColumnHeader } from "~/components/data-table/data-table-column-header";
 import { DataTable } from "~/components/data-table";
-import { TrashIcon } from "@radix-ui/react-icons";
-import { EditIcon } from "lucide-react";
-import { Button } from "~/components/ui/button";
 import { Group } from "@prisma/client";
+import { DeleteGroupModal } from "~/components/dashboard/modals/delete-group-modal";
+import { EditGroupModal } from "~/components/dashboard/modals/edit-group-modal";
 
 type Props = {
   data: Group[];
@@ -70,13 +69,9 @@ export const GroupsTableShell: FC<Props> = ({ data }) => {
           </div>
         ),
         cell: ({ row }) => (
-          <div className="flex items-center justify-evenly min-w-max space-x-5">
-            <Button>
-              <EditIcon className="h-4 w-4" />
-            </Button>
-            <Button>
-              <TrashIcon className="h-4 w-4" />
-            </Button>
+          <div className="flex items-center justify-center min-w-max space-x-5">
+            <EditGroupModal group={row.original} />
+            <DeleteGroupModal group={row.original} />
           </div>
         ),
       },
