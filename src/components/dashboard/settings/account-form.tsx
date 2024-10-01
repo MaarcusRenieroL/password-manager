@@ -1,3 +1,5 @@
+"use client"
+
 import { Button } from "~/components/ui/button";
 import {
   Card,
@@ -8,9 +10,168 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
-import { FC } from "react";
+import { FC, useState } from "react";
+import { useForm } from "react-hook-form"
+import { z } from "zod";
+import {
+  changeEmailFormSchema,
+  changeNameFormSchema,
+  changePasswordFormSchema,
+  deleteAccountSchema
+} from "~/lib/types/zod-schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Form, FormField, FormControl, FormMessage, FormItem, FormLabel } from "~/components/ui/form";
+import { client } from "~/lib/trpc/client";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { User } from "@prisma/client";
+import { signOut } from "next-auth/react";
 
-export const AccountForm: FC = () => {
+type Props = {
+  user: User;
+}
+
+export const AccountForm: FC<Props> = ({ user }) => {
+  
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  
+  const nameForm = useForm<z.infer<typeof changeNameFormSchema>>({
+    resolver: zodResolver(changeNameFormSchema),
+    defaultValues: {
+      name: user.name,
+    }
+  });
+  const emailForm = useForm<z.infer<typeof changeEmailFormSchema>>({
+    resolver: zodResolver(changeEmailFormSchema),
+    defaultValues: {
+      email: user.email
+    }
+  });
+  const passwordForm = useForm<z.infer<typeof changePasswordFormSchema>>({
+    resolver: zodResolver(changePasswordFormSchema),
+    defaultValues: {
+      currentPassword: "",
+      newPassword : "",
+      confirmNewPassword: ""
+    }
+  });
+  
+  const { mutateAsync: updateName } =
+    client.user.updateName.useMutation({
+      onSuccess: (data) => {
+        toast("Success", {
+          description: data.message,
+        });
+      },
+      onError: (error) => {
+        toast("Error", {
+          description: error.message,
+        });
+      },
+    });
+  const { mutateAsync: updateEmail } =
+    client.user.updateEmail.useMutation({
+      onSuccess: (data) => {
+        toast("Success", {
+          description: data.message,
+        });
+      },
+      onError: (error) => {
+        toast("Error", {
+          description: error.message,
+        });
+      },
+    });
+  const { mutateAsync: updatePassword } =
+    client.user.updatePassword.useMutation({
+      onSuccess: (data) => {
+        toast("Success", {
+          description: data.message,
+        });
+      },
+      onError: (error) => {
+        toast("Error", {
+          description: error.message,
+        });
+      },
+    });
+  const { mutateAsync: deleteAccount } =
+    client.user.deleteUser.useMutation({
+      onSuccess: (data) => {
+        toast("Success", {
+          description: data.message,
+        });
+      },
+      onError: (error) => {
+        toast("Error", {
+          description: error.message,
+        });
+      },
+    });
+  
+  const handleNameForm = async (data: z.infer<typeof changeNameFormSchema>) => {
+    try {
+      setLoading(true);
+      
+      await updateName(data);
+      
+      router.refresh();
+    } catch (error: any) {
+      setLoading(false);
+    } finally {
+      setLoading(false);
+    }
+  }
+  const handleEmailForm = async (data: z.infer<typeof changeEmailFormSchema>) => {
+    try {
+      setLoading(true);
+      
+      await updateEmail(data);
+      
+      router.refresh();
+      signOut({
+        callbackUrl: "/",
+      });
+    } catch (error: any) {
+      setLoading(false);
+    } finally {
+      setLoading(false);
+    }
+  }
+  const handlePasswordForm = async (data: z.infer<typeof changePasswordFormSchema>) => {
+    try {
+      setLoading(true);
+      
+      await updatePassword(data);
+      
+      router.refresh();
+    } catch (error: any) {
+      setLoading(false);
+    } finally {
+      setLoading(false);
+    }
+  }
+  const handleDeleteAccount = async (data: z.infer<typeof deleteAccountSchema>) => {
+    try {
+      setLoading(true);
+      
+      await deleteAccount(data);
+      
+      toast("Success", {
+        description: "Your account has been deleted",
+      });
+      
+      signOut({
+        callbackUrl: "/",
+      });
+    } catch (error: any) {
+      setLoading(false);
+    } finally {
+      setLoading(false);
+    }
+  }
+  
   return (
     <div className="grid gap-8 mb-20">
       <Card>
@@ -21,17 +182,27 @@ export const AccountForm: FC = () => {
             with.
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <form>
-            <Input placeholder="Name" />
+        <Form {...nameForm}>
+          <form onSubmit={nameForm.handleSubmit(handleNameForm)}>
+            <CardContent>
+              <FormField disabled={loading} name="name" control={nameForm.control} render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input type="text" {...field} placeholder="Enter your name" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+            </CardContent>
+            <CardFooter className="border-t px-6 py-2 bg-secondary justify-between">
+              <div className="text-sm">Please use 32 characters at maximum.</div>
+              <div className="ml-auto">
+                <Button type="submit" disabled={loading}>Save</Button>
+              </div>
+            </CardFooter>
           </form>
-        </CardContent>
-        <CardFooter className="border-t px-6 py-2 bg-secondary justify-between">
-          <div className="text-sm">Please use 32 characters at maximum.</div>
-          <div className="ml-auto">
-            <Button>Save</Button>
-          </div>
-        </CardFooter>
+        </Form>
       </Card>
       <Card>
         <CardHeader>
@@ -41,51 +212,27 @@ export const AccountForm: FC = () => {
             Vacancy.
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <form>
-            <Input
-              defaultValue="anonymous@gmail.com"
-              placeholder="your email"
-            />
+        <Form {...emailForm}>
+          <form onSubmit={emailForm.handleSubmit(handleEmailForm)}>
+            <CardContent>
+              <FormField disabled={loading} name="email" control={emailForm.control} render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input type="email" {...field} placeholder="Enter your new email" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+            </CardContent>
+            <CardFooter className="border-t px-6 py-2 bg-secondary justify-between">
+              <div className="text-sm">We will email you to verify the change.</div>
+              <div className="ml-auto">
+                <Button type="submit" disabled={loading}>Save</Button>
+              </div>
+            </CardFooter>
           </form>
-        </CardContent>
-        <CardFooter className="border-t px-6 py-2 bg-secondary justify-between">
-          <div className="text-sm">We will email you to verify the change.</div>
-          <div className="ml-auto">
-            <Button>Save</Button>
-          </div>
-        </CardFooter>
-      </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-xl">Username</CardTitle>
-          <CardDescription>
-            This is your URL namespace within Blog Vacancy.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form>
-            <div className="w-full flex">
-              <span
-                className="w-44 bg-secondary text-sm flex justify-center items-center rounded-sm border text-muted-foreground"
-                style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}
-              >
-                password-manager/
-              </span>
-              <Input
-                placeholder="Name"
-                className="focus-visible:ring-0 focus-visible:border-black overflow-hidden"
-                style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
-              />
-            </div>
-          </form>
-        </CardContent>
-        <CardFooter className="border-t px-6 py-2 bg-secondary justify-between">
-          <div className="text-sm">Please use 48 characters at maximum.</div>
-          <div className="ml-auto">
-            <Button>Save</Button>
-          </div>
-        </CardFooter>
+        </Form>
       </Card>
       <Card>
         <CardHeader>
@@ -94,21 +241,49 @@ export const AccountForm: FC = () => {
             Please enter your current password and a new password.
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <form className="space-y-5">
-            <Input type="password" placeholder="Current password" />
-            <Input type="password" placeholder="New password" />
-            <Input type="password" placeholder="Confirm new password" />
+        <Form {...passwordForm}>
+          <form onSubmit={passwordForm.handleSubmit(handlePasswordForm)}>
+            <CardContent className="space-y-5">
+              <FormField disabled={loading} name="currentPassword" control={passwordForm.control} render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input type="password" {...field} placeholder="Enter your current password" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+              
+              <FormField disabled={loading} name="newPassword" control={passwordForm.control} render={({ field }) => (
+                <FormItem>
+                  <FormLabel>New Password</FormLabel>
+                  <FormControl>
+                    <Input type="password" {...field} placeholder="Enter your new password" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+              
+              <FormField disabled={loading} name="confirmNewPassword" control={passwordForm.control} render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Confirm New Password</FormLabel>
+                  <FormControl>
+                    <Input type="password" {...field} placeholder="Re-Enter your password" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+            </CardContent>
+            <CardFooter className="border-t px-6 py-2 bg-secondary justify-between">
+              <div className="text-sm">
+                Please use a password with at least 8 characters.
+              </div>
+              <div className="ml-auto">
+                <Button type="submit" disabled={loading}>Save</Button>
+              </div>
+            </CardFooter>
           </form>
-        </CardContent>
-        <CardFooter className="border-t px-6 py-2 bg-secondary justify-between">
-          <div className="text-sm">
-            Please use a password with at least 8 characters.
-          </div>
-          <div className="ml-auto">
-            <Button>Save</Button>
-          </div>
-        </CardFooter>
+        </Form>
       </Card>
 
       <Card className="border-red-200">
@@ -122,7 +297,7 @@ export const AccountForm: FC = () => {
         </CardHeader>
         <CardFooter className="border-t border-red-200 px-6 py-2 bg-red-100/50 justify-end">
           <div className="ml-auto">
-            <Button variant="destructive">Delete Personal Account</Button>
+            <Button variant="destructive" onClick={() => handleDeleteAccount({ id: user.id})}>Delete Personal Account</Button>
           </div>
         </CardFooter>
       </Card>

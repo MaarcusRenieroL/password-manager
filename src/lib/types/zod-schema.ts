@@ -128,3 +128,55 @@ export const addNewGroupSchema = z.object({
     message: "Group Name must be at least 3 characters long",
   })
 })
+
+export const changeNameFormSchema = z.object({
+  name: z.string({
+    required_error: "Name is required",
+  }).min(3, {
+    message: "Name must be at least 3 characters long",
+  })
+})
+
+export const changeEmailFormSchema = z.object({
+  email: z
+   .string({
+      required_error: "Email is required",
+    })
+   .email({
+      message: "Invalid email",
+    })
+   .min(2, {
+      message: "Email must be at least 2 characters long",
+    })
+})
+
+export const changePasswordFormSchema = z.object({
+  currentPassword: z
+    .string({
+      required_error: "Current Password is required",
+    })
+    .min(6, {
+      message: "Current Password must be at least 6 characters long",
+    }),
+  newPassword: z
+    .string({
+      required_error: "New Password is required",
+    })
+    .min(6, {
+      message: "New Password must be at least 6 characters long",
+    }),
+  confirmNewPassword: z
+  .string({
+    required_error: "Confirm New Password is required",
+  })
+  .min(6, {
+    message: "Confirm New Password must be at least 6 characters long",
+  }),
+}).refine((data) => data.newPassword === data.confirmNewPassword, {
+  message: "Passwords do not match",
+  path: ["confirmPassword"],
+});
+
+export const deleteAccountSchema = z.object({
+  id: z.string()
+})
