@@ -7,9 +7,9 @@ import bcryptjs from "bcryptjs";
 export const userRouter = router({
   addUser: publicProcedure.input(registerSchema).mutation(async ({ input }) => {
     try {
-      const { email, password, confirmPassword, firstName, lastName } = input;
+      const { email, password, confirmPassword, name } = input;
 
-      if (!email || !password || !confirmPassword || !firstName || !lastName) {
+      if (!email || !password || !confirmPassword || !name) {
         throw new TRPCError({
           code: "BAD_REQUEST",
           message: "Missing required fields",
@@ -31,8 +31,7 @@ export const userRouter = router({
 
       const newUser = await db.user.create({
         data: {
-          firstName: firstName,
-          lastName: lastName,
+          name: name,
           email: email,
           password: await bcryptjs.hash(password, 10),
         },

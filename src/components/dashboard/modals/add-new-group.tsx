@@ -20,8 +20,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { client } from "~/lib/trpc/client";
 import { toast } from "sonner";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "~/components/ui/form";
+import { useRouter } from "next/navigation";
 
 export const AddNewGroupModal: FC = () => {
+	const router = useRouter()
 	
 	const [ loading, setLoading ] = useState(false);
 	
@@ -52,6 +54,7 @@ export const AddNewGroupModal: FC = () => {
 			setLoading(true);
 			
 			await addNewGroup(data);
+			router.refresh();
 		} catch (error: any) {
 			setLoading(false);
 			console.log(error)

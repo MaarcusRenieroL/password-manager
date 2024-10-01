@@ -27,6 +27,7 @@ import { Check } from "lucide-react";
 import { Loader } from "~/components/loader";
 import { Group } from "@prisma/client"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
+import { useRouter } from "next/navigation";
 
 type Props = {
 	groups: Group[];
@@ -38,6 +39,8 @@ export const AddNewPasswordModal: FC<Props> = ({ groups }) => {
 	const [ isCopying, setIsCopying ] = useState(false);
 	const [ showPassword, setShowPassword ] = useState(false);
 	const [ showCopied, setShowCopied ] = useState(false);
+	
+	const router = useRouter();
 	
 	const form = useForm<z.infer<typeof addNewPasswordSchema>>({
 		mode: "onChange",
@@ -72,7 +75,7 @@ export const AddNewPasswordModal: FC<Props> = ({ groups }) => {
 			
 			await addNewPassword(data);
 			
-			console.log(data);
+			router.refresh();
 		} catch (error: any) {
 			setLoading(false);
 		} finally {

@@ -27,8 +27,7 @@ export default function SignUpPage() {
       email: "",
       password: "",
       confirmPassword: "",
-      firstName: "",
-      lastName: "",
+      name: ""
     },
   });
 
@@ -75,35 +74,16 @@ export default function SignUpPage() {
                   <div className="space-y-2">
                     <FormField
                       control={form.control}
-                      name="firstName"
+                      name="name"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>
-                            <Label>First Name</Label>
+                            <Label>Name</Label>
                           </FormLabel>
                           <FormControl>
                             <Input
                               type="text"
-                              placeholder="Enter your first name"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="lastName"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>
-                            <Label>Last Name</Label>
-                          </FormLabel>
-                          <FormControl>
-                            <Input
-                              type="text"
-                              placeholder="Enter your last name"
+                              placeholder="Enter your name"
                               {...field}
                             />
                           </FormControl>
