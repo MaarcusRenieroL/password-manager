@@ -75,6 +75,9 @@ export const addNewPasswordSchema = z.object({
     })
     .optional(),
   userName: z.string().optional(),
+  groupId: z.string({
+    required_error: "Group is required",
+  }),
   password: z
     .string({
       required_error: "Password is required",
@@ -82,6 +85,41 @@ export const addNewPasswordSchema = z.object({
     .min(8, {
       message: "Password must be at least 8 characters long",
     }),
+});
+
+export const updatePasswordSchema = z.object({
+  passwordId: z.string(),
+  websiteName: z.string({
+    required_error: "Website Name is required",
+  }),
+  websiteUrl: z
+    .string({
+      required_error: "Website Url is required",
+    })
+    .url({
+      message: "Invalid Url",
+    }),
+  email: z
+    .string()
+    .email({
+      message: "Invalid Email",
+    })
+    .optional(),
+  userName: z.string().optional(),
+  groupId: z.string({
+    required_error: "Group is required",
+  }),
+  password: z
+    .string({
+      required_error: "Password is required",
+    })
+    .min(8, {
+      message: "Password must be at least 8 characters long",
+    }),
+});
+
+export const deletePasswordSchema = z.object({
+  passwordId: z.string(),
 });
 
 export const addNewGroupSchema = z.object({

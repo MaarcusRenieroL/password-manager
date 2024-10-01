@@ -1,59 +1,61 @@
-"use client";
-
-import { zodResolver } from "@hookform/resolvers/zod";
 import { FC, useState } from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import { z } from "zod";
-import { Button } from "~/components/ui/button";
 import {
-	Dialog,
-	DialogClose,
+	Dialog, DialogClose,
 	DialogContent,
-	DialogDescription,
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogTrigger,
+	DialogTrigger
 } from "~/components/ui/dialog";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, } from "~/components/ui/form";
-import { Input } from "~/components/ui/input";
+import { Button } from "~/components/ui/button";
+import { Check, EyeIcon, Save, Trash } from "lucide-react";
+import { Password, Group } from "@prisma/client";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "~/components/ui/form";
 import { Label } from "~/components/ui/label";
-import { client } from "~/lib/trpc/client";
-import { addNewPasswordSchema } from "~/lib/types/zod-schema";
-import { generateRandomPassword } from "~/lib/utils";
-import { CopyIcon, EyeClosedIcon, EyeOpenIcon } from "@radix-ui/react-icons";
-import { Check } from "lucide-react";
-import { Loader } from "~/components/loader";
-import { Group } from "@prisma/client"
+import { Input } from "~/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
+import { Loader } from "~/components/loader";
+import { CopyIcon, EyeClosedIcon, EyeOpenIcon } from "@radix-ui/react-icons";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { updatePasswordSchema, deletePasswordSchema } from "~/lib/types/zod-schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { client } from "~/lib/trpc/client";
+import { toast } from "sonner";
+import { generateRandomPassword } from "~/lib/utils";
+import { useRouter } from "next/navigation";
 
 type Props = {
+	data: Password;
 	groups: Group[];
 }
 
-export const AddNewPasswordModal: FC<Props> = ({ groups }) => {
+export const ViewData: FC<Props> = ({ data, groups }) => {
+	
 	const [ loading, setLoading ] = useState(false);
 	const [ isGenerating, setIsGenerating ] = useState(false);
 	const [ isCopying, setIsCopying ] = useState(false);
 	const [ showPassword, setShowPassword ] = useState(false);
 	const [ showCopied, setShowCopied ] = useState(false);
 	
-	const form = useForm<z.infer<typeof addNewPasswordSchema>>({
+	const router = useRouter();
+	
+	const form = useForm<z.infer<typeof updatePasswordSchema>>({
 		mode: "onChange",
-		resolver: zodResolver(addNewPasswordSchema),
+		resolver: zodResolver(updatePasswordSchema),
 		defaultValues: {
-			email: "",
-			password: "",
-			userName: "",
-			groupId: "",
-			websiteUrl: "https://",
-			websiteName: "",
+			passwordId: data.passwordId,
+			email: data.email ?? "",
+			password: data.password,
+			userName: data.userName ?? "",
+			groupId: data.groupId ?? "",
+			websiteUrl: data.websiteUrl,
+			websiteName: data.websiteName,
 		},
 	});
 	
-	const { mutateAsync: addNewPassword } =
-		client.password.addNewPassword.useMutation({
+	const { mutateAsync: updatePassword } =
+		client.password.updatePassword.useMutation({
 			onSuccess: (data) => {
 				toast("Success", {
 					description: data.message,
@@ -66,11 +68,25 @@ export const AddNewPasswordModal: FC<Props> = ({ groups }) => {
 			},
 		});
 	
-	const handleSubmit = async (data: z.infer<typeof addNewPasswordSchema>) => {
+	const { mutateAsync: deletePassword } =
+		client.password.deletePassword.useMutation({
+			onSuccess: (data) => {
+				toast("Success", {
+					description: data.message,
+				});
+			},
+			onError: (error) => {
+				toast("Error", {
+					description: error.message,
+				});
+			},
+		});
+	
+	const handleSubmit = async (data: z.infer<typeof updatePasswordSchema>) => {
 		try {
 			setLoading(true);
 			
-			await addNewPassword(data);
+			await updatePassword(data);
 			
 			console.log(data);
 		} catch (error: any) {
@@ -106,23 +122,47 @@ export const AddNewPasswordModal: FC<Props> = ({ groups }) => {
 		setTimeout(() => setIsGenerating(false), 1000); // Simulate delay
 	};
 	
+	const handleDelete = async (data: z.infer<typeof deletePasswordSchema>) => {
+		console.log(data);
+		await deletePassword(data);
+	}
+	
 	return (
 		<Dialog>
-			<DialogTrigger asChild>
-				<Button>Add New Password</Button>
+			<DialogTrigger>
+				<Button size="icon" variant="outline">
+					<EyeIcon className="h-4 w-4" />
+				</Button>
 			</DialogTrigger>
 			<DialogContent className="max-w-4xl">
+				<DialogHeader>
+					<DialogTitle>{data.websiteName}</DialogTitle>
+				</DialogHeader>
 				<Form {...form}>
 					<form
 						className="space-y-5"
 						onSubmit={form.handleSubmit(handleSubmit)}
 					>
-						<DialogHeader>
-							<DialogTitle>Add New Password</DialogTitle>
-							<DialogDescription>
-								Fill out the form to add new password
-							</DialogDescription>
-						</DialogHeader>
+						<FormField
+							name="passwordId"
+							disabled={loading}
+							control={form.control}
+							render={({ field }) => (
+								<FormItem className="hidden">
+									<FormLabel>
+										<Label>Website Name</Label>
+									</FormLabel>
+									<FormControl>
+										<Input
+											placeholder="Enter Website Name"
+											type="text"
+											{...field}
+										/>
+									</FormControl>
+									<FormMessage/>
+								</FormItem>
+							)}
+						/>
 						<FormField
 							name="websiteName"
 							disabled={loading}
@@ -265,8 +305,8 @@ export const AddNewPasswordModal: FC<Props> = ({ groups }) => {
 								variant="outline"
 								size="icon"
 								className="p-2"
-								type="button"
 								onClick={() => setShowPassword(!showPassword)}
+								type="button"
 							>
 								{showPassword ? <EyeOpenIcon className="h-4 w-4"/> : <EyeClosedIcon className="h-4 w-4"/>}
 							</Button>
@@ -285,13 +325,19 @@ export const AddNewPasswordModal: FC<Props> = ({ groups }) => {
 									Cancel
 								</Button>
 							</DialogClose>
-							<Button disabled={loading} type="submit">
-								{loading ? <Loader/> : "Save Changes"}
+							<Button disabled={loading} type="submit" size="icon">
+								{loading ? <Loader/> : <Save className="h-4 w-4" /> }
+							</Button>
+							<Button disabled={loading} type="button" size="icon" variant="destructive" onClick={() => {
+								handleDelete({ passwordId: data.passwordId });
+								router.refresh();
+							}}>
+								{loading ? <Loader/> : <Trash className="h-4 w-4" />}
 							</Button>
 						</DialogFooter>
 					</form>
 				</Form>
 			</DialogContent>
 		</Dialog>
-	);
-};
+	)
+}

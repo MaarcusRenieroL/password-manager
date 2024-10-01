@@ -5,26 +5,15 @@ import type { ColumnDef } from "@tanstack/react-table";
 import React, { type FC, useMemo, useState } from "react";
 import { DataTableColumnHeader } from "~/components/data-table/data-table-column-header";
 import { DataTable } from "~/components/data-table";
-import { EyeClosedIcon, EyeOpenIcon, TrashIcon } from "@radix-ui/react-icons";
-import { EditIcon } from "lucide-react";
-import { Button } from "~/components/ui/button";
-import { Password } from "@prisma/client";
+import { ViewData } from "~/components/table-shell/view-data";
+import { Group, Password } from "@prisma/client";
 
 type Props = {
 	data: Password[];
+	groups: Group[];
 }
 
-export const PasswordsTableShell: FC<Props> = ({ data }) => {
-	const [visiblePasswords, setVisiblePasswords] = useState<Record<string, boolean>>({});
-	
-	const togglePasswordVisibility = (id: string) => {
-		setVisiblePasswords((prevState) => ({
-			...prevState,
-			[id]: !prevState[id],
-		}));
-		
-	};
-	
+export const PasswordsTableShell: FC<Props> = ({ data, groups }) => {
 	const PasswordsColumnDef = useMemo<ColumnDef<any>[]>(
 		() => [
 			{
@@ -87,16 +76,16 @@ export const PasswordsTableShell: FC<Props> = ({ data }) => {
 				enableHiding: true,
 			},
 			{
-				id: "username",
+				id: "userName",
 				header: ({ column }) => (
 					<div>
 						<DataTableColumnHeader column={column} title="Username" />
 					</div>
 				),
 				cell: ({ row }) => (
-					<div className="min-w-max">{row.getValue("username")}</div>
+					<div className="min-w-max">{row.getValue("userName")}</div>
 				),
-				accessorKey: "username",
+				accessorKey: "userName",
 				enableSorting: true,
 				enableHiding: true,
 			},
@@ -115,54 +104,18 @@ export const PasswordsTableShell: FC<Props> = ({ data }) => {
 				enableHiding: true,
 			},
 			{
-				id: "password",
-				header: ({ column }) => (
-					<div>
-						<DataTableColumnHeader column={column} title="Password" />
-					</div>
-				),
-				cell: ({ row }) => (
-					<div className="min-w-max flex items-center justify-center gap-5 text-center">
-						<Button
-							size="icon"
-							variant="outline"
-							onClick={() => togglePasswordVisibility(row.original.id)}
-						>
-							{visiblePasswords[row.original.id] ? (
-								<EyeClosedIcon className="h-4 w-4" />
-							) : (
-								<EyeOpenIcon className="h-4 w-4" />
-							)}
-						</Button>
-						<p>
-							{visiblePasswords[row.original.id]
-								? row.getValue("password")
-								: "******"}
-						</p>
-					</div>
-				),
-				accessorKey: "password",
-				enableSorting: true,
-				enableHiding: true,
-			},
-			{
 				id: "actions",
 				header: () => (
 					<div className="flex min-w-max items-center justify-center">Actions</div>
 				),
 				cell: ({ row }) => (
-					<div className="flex items-center justify-evenly min-w-max space-x-5">
-						<Button size="icon">
-							<EditIcon className="h-4 w-4" />
-						</Button>
-						<Button size="icon" variant="destructive">
-							<TrashIcon className="h-4 w-4" />
-						</Button>
+					<div className="flex items-center justify-center">
+						<ViewData data={row.original} groups={groups} />
 					</div>
 				),
 			},
 		],
-		[visiblePasswords] // update on password visibility change
+		[]
 	);
 	
 	return (
