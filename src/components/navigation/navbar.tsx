@@ -24,7 +24,6 @@ type Props = {
 };
 
 export const Navbar: FC<Props> = ({ session }) => {
-	
 	const pathname = usePathname();
 	return (
 		<div className="h-20 flex items-center justify-between px-10 py-6 w-full border-b">

@@ -8,9 +8,14 @@ import { DataTable } from "~/components/data-table";
 import { TrashIcon } from "@radix-ui/react-icons";
 import { EditIcon } from "lucide-react";
 import { Button } from "~/components/ui/button";
+import { Group } from "@prisma/client";
 
-export const GroupsTableShell: FC = ({}) => {
-  const GroupsColumnDef = useMemo<ColumnDef<any>[]>(
+type Props = {
+  data: Group[];
+}
+
+export const GroupsTableShell: FC<Props> = ({ data }) => {
+  const GroupsColumnDef = useMemo<ColumnDef<Group>[]>(
     () => [
       {
         id: "select",
@@ -81,7 +86,7 @@ export const GroupsTableShell: FC = ({}) => {
   );
   return (
     <DataTable
-      data={[]}
+      data={data}
       columns={GroupsColumnDef}
       filterableColumns={[]}
       searchPlaceholder="Search groups..."
@@ -91,7 +96,7 @@ export const GroupsTableShell: FC = ({}) => {
           description: "Add group to get started!",
         },
         emptyDataMessage: {
-          title: "No gropus found!",
+          title: "No groups found!",
           description: "Add group to get started!",
         },
       }}

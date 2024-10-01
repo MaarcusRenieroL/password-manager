@@ -5,6 +5,43 @@ import { TRPCError } from "@trpc/server";
 import { db } from "~/lib/db";
 
 export const groupRouter = router({
+	getGroups: privateProcedure.query(async ({ ctx }) => {
+		const { userId } = ctx;
+		const session = await getServerAuthSession();
+		
+		if (!session) {
+			throw new TRPCError({
+				code: "UNAUTHORIZED",
+				message: "User not logged in",
+			});
+		}
+		
+		const existingUser = await db.user.findFirst({
+			where: {
+				id: userId,
+			},
+		});
+		
+		if (!existingUser) {
+			throw new TRPCError({
+				code: "UNAUTHORIZED",
+				message: "User not found",
+			});
+		}
+		
+		if (session.user.id!== userId) {
+			throw new TRPCError({
+				code: "FORBIDDEN",
+				message: "User not authorized",
+			});
+		}
+		
+		return db.group.findMany({
+			where: {
+				userId,
+			},
+		});
+	}),
 	addNewGroup: privateProcedure
 		.input(addNewGroupSchema)
 		.mutation(async ({ ctx, input }) => {
@@ -51,6 +88,7 @@ export const groupRouter = router({
 				const newGroup = await db.group.create({
 					data: {
 						groupName: groupName,
+						userId: existingUser.id
 					},
 				});
 				
