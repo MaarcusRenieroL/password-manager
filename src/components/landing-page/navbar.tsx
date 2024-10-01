@@ -2,6 +2,7 @@ import Link from "next/link";
 import { MenuIcon, Shield } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "~/components/ui/sheet"
 import { Button } from "~/components/ui/button";
+import { ThemeToggle } from "~/components/theme-toggle";
 
 export const Navbar = () => {
 	return (
@@ -20,6 +21,7 @@ export const Navbar = () => {
 					</Link>
 				</nav>
 				<div className="flex items-center gap-5">
+					<ThemeToggle />
 					<Link href="/auth/sign-up">
 						<Button variant="outline">Sign In</Button>
 					</Link>
@@ -44,11 +46,14 @@ export const Navbar = () => {
 				</Sheet>
 				<Link className="flex items-center justify-center" href="#">
 					<Shield className="h-6 w-6 text-primary"/>
-					<span className="ml-2 text-lg font-bold">SecurePass1</span>
+					<span className="ml-2 text-lg font-bold">SecurePass</span>
 				</Link>
-				<Link href="/auth/sign-up">
-					<Button>Sign Up</Button>
-				</Link>
+				<div className="flex items-center gap-5">
+					<ThemeToggle />
+					<Link href="/auth/sign-up">
+						<Button>Sign Up</Button>
+					</Link>
+				</div>
 			</header>
 		</>
 	)

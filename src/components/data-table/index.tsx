@@ -161,7 +161,7 @@ export function DataTable<TData, TValue>({
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center bg-[#F9F9FA]"
+                  className="h-24 text-center dark:bg-dark"
                 >
                   {data.length === 0 ? (
                     <Message

@@ -123,7 +123,7 @@ export const PasswordsTableShell: FC<Props> = ({ data, groups }) => {
 			data={data}
 			columns={PasswordsColumnDef}
 			filterableColumns={[]}
-			searchPlaceholder="Search websites..."
+			searchPlaceholder="Search Passwords..."
 			messages={{
 				filteredDataNotFoundMessage: {
 					title: "No websites found!",

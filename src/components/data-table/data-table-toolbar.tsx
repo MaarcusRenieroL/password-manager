@@ -89,7 +89,6 @@ export function DataTableToolbar<TData>({
               onClick={handleRefreshClick}
             >
               <RefreshCw
-                color="#000"
                 className={cn("", isRotating ? "animate-spin" : "")}
               />
             </Button>
