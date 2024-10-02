@@ -88,9 +88,7 @@ export function DataTableToolbar<TData>({
               className="h-8 w-8 p-2 border-dashed"
               onClick={handleRefreshClick}
             >
-              <RefreshCw
-                className={cn("", isRotating ? "animate-spin" : "")}
-              />
+              <RefreshCw className={cn("", isRotating ? "animate-spin" : "")} />
             </Button>
           </TooltipComponent>
           {filterableColumns.length > 0 &&

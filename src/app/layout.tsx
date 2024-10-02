@@ -8,7 +8,7 @@ const poppins = Poppins({
   subsets: ["latin"],
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
   display: "swap",
-  adjustFontFallback: false
+  adjustFontFallback: false,
 });
 
 export const metadata: Metadata = {
@@ -21,11 +21,11 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await getServerAuthSession()
+  const session = await getServerAuthSession();
 
   return (
     <html lang="en">
-      <body className="">
+      <body className={poppins.className}>
         <Providers session={session}>{children}</Providers>
       </body>
     </html>

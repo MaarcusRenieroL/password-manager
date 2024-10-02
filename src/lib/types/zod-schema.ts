@@ -1,11 +1,14 @@
 import { z } from "zod";
 
-export const registerSchema = z.object({
-    name: z.string({
-      required_error: "Name is required",
-    }).min(2, {
-      message: "Name must be at least 2 characters long",
-    }),
+export const registerSchema = z
+  .object({
+    name: z
+      .string({
+        required_error: "Name is required",
+      })
+      .min(2, {
+        message: "Name must be at least 2 characters long",
+      }),
     email: z
       .string({
         required_error: "Email is required",
@@ -122,77 +125,85 @@ export const deletePasswordSchema = z.object({
 });
 
 export const addNewGroupSchema = z.object({
-  groupName: z.string({
-    required_error: "Group Name is required",
-  }).min(3, {
-    message: "Group Name must be at least 3 characters long",
-  })
-})
+  groupName: z
+    .string({
+      required_error: "Group Name is required",
+    })
+    .min(3, {
+      message: "Group Name must be at least 3 characters long",
+    }),
+});
 
 export const updateGroupSchema = z.object({
   groupId: z.string(),
-  groupName: z.string({
-    required_error: "Group Name is required",
-  }).min(3, {
-    message: "Group Name must be at least 3 characters long",
-  })
-})
+  groupName: z
+    .string({
+      required_error: "Group Name is required",
+    })
+    .min(3, {
+      message: "Group Name must be at least 3 characters long",
+    }),
+});
 
 export const deleteGroupSchema = z.object({
   groupId: z.string(),
-})
-
+});
 
 export const changeNameFormSchema = z.object({
-  name: z.string({
-    required_error: "Name is required",
-  }).min(3, {
-    message: "Name must be at least 3 characters long",
-  })
-})
+  name: z
+    .string({
+      required_error: "Name is required",
+    })
+    .min(3, {
+      message: "Name must be at least 3 characters long",
+    }),
+});
 
 export const changeEmailFormSchema = z.object({
   email: z
-   .string({
+    .string({
       required_error: "Email is required",
     })
-   .email({
+    .email({
       message: "Invalid email",
     })
-   .min(2, {
+    .min(2, {
       message: "Email must be at least 2 characters long",
-    })
-})
-
-export const changePasswordFormSchema = z.object({
-  currentPassword: z
-    .string({
-      required_error: "Current Password is required",
-    })
-    .min(6, {
-      message: "Current Password must be at least 6 characters long",
     }),
-  newPassword: z
-    .string({
-      required_error: "New Password is required",
-    })
-    .min(6, {
-      message: "New Password must be at least 6 characters long",
-    }),
-  confirmNewPassword: z
-  .string({
-    required_error: "Confirm New Password is required",
-  })
-  .min(6, {
-    message: "Confirm New Password must be at least 6 characters long",
-  }),
-}).refine((data) => data.newPassword === data.confirmNewPassword, {
-  message: "Passwords do not match",
-  path: ["confirmPassword"],
 });
 
+export const changePasswordFormSchema = z
+  .object({
+    currentPassword: z
+      .string({
+        required_error: "Current Password is required",
+      })
+      .min(6, {
+        message: "Current Password must be at least 6 characters long",
+      }),
+    newPassword: z
+      .string({
+        required_error: "New Password is required",
+      })
+      .min(6, {
+        message: "New Password must be at least 6 characters long",
+      }),
+    confirmNewPassword: z
+      .string({
+        required_error: "Confirm New Password is required",
+      })
+      .min(6, {
+        message: "Confirm New Password must be at least 6 characters long",
+      }),
+  })
+  .refine((data) => data.newPassword === data.confirmNewPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+
 export const deleteAccountSchema = z.object({
-  id: z.string()
-})
+  id: z.string(),
+});
 
 export const passwordsSchema = z.array(addNewPasswordSchema);
+

@@ -14,7 +14,12 @@ export const Providers: FC<Props> = ({ children, session }) => {
   return (
     <TRPCProvider>
       <NextAuthProvider session={session}>
-        <ThemeProvider attribute="class" defaultTheme="dark" disableTransitionOnChange enableSystem>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          disableTransitionOnChange
+          enableSystem
+        >
           {children}
           <Toaster />
         </ThemeProvider>

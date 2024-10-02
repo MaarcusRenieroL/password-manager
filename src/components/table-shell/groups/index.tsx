@@ -11,7 +11,7 @@ import { EditGroupModal } from "~/components/dashboard/modals/edit-group-modal";
 
 type Props = {
   data: Group[];
-}
+};
 
 export const GroupsTableShell: FC<Props> = ({ data }) => {
   const GroupsColumnDef = useMemo<ColumnDef<Group>[]>(
