@@ -72,12 +72,12 @@ export const ViewData: FC<Props> = ({ data, groups }) => {
 
   const { mutateAsync: updatePassword } =
     client.password.updatePassword.useMutation({
-      onSuccess: (data) => {
+      onSuccess: data => {
         toast("Success", {
           description: data.message,
         });
       },
-      onError: (error) => {
+      onError: error => {
         toast("Error", {
           description: error.message,
         });
@@ -86,12 +86,12 @@ export const ViewData: FC<Props> = ({ data, groups }) => {
 
   const { mutateAsync: deletePassword } =
     client.password.deletePassword.useMutation({
-      onSuccess: (data) => {
+      onSuccess: data => {
         toast("Success", {
           description: data.message,
         });
       },
-      onError: (error) => {
+      onError: error => {
         toast("Error", {
           description: error.message,
         });
@@ -117,7 +117,7 @@ export const ViewData: FC<Props> = ({ data, groups }) => {
 
     if (password) {
       setIsCopying(true);
-      navigator.clipboard.writeText(password).then((r) => r);
+      navigator.clipboard.writeText(password).then(r => r);
       toast("Password copied to clipboard", {
         description: "You can now paste it wherever you want.",
       });
@@ -275,8 +275,8 @@ export const ViewData: FC<Props> = ({ data, groups }) => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {groups.map((group) => (
-                          <SelectItem value={group.groupId}>
+                        {groups.map(group => (
+                          <SelectItem value={group.groupId} key={group.groupId}>
                             {group.groupName}
                           </SelectItem>
                         ))}
@@ -379,4 +379,3 @@ export const ViewData: FC<Props> = ({ data, groups }) => {
     </Dialog>
   );
 };
-

@@ -70,12 +70,12 @@ export const AddNewPasswordModal: FC<Props> = ({ groups }) => {
 
   const { mutateAsync: addNewPassword } =
     client.password.addNewPassword.useMutation({
-      onSuccess: (data) => {
+      onSuccess: data => {
         toast("Success", {
           description: data.message,
         });
       },
-      onError: (error) => {
+      onError: error => {
         toast("Error", {
           description: error.message,
         });
@@ -101,7 +101,7 @@ export const AddNewPasswordModal: FC<Props> = ({ groups }) => {
 
     if (password) {
       setIsCopying(true);
-      navigator.clipboard.writeText(password).then((r) => r);
+      navigator.clipboard.writeText(password).then(r => r);
       toast("Password copied to clipboard", {
         description: "You can now paste it wherever you want.",
       });
@@ -235,8 +235,8 @@ export const AddNewPasswordModal: FC<Props> = ({ groups }) => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {groups.map((group) => (
-                          <SelectItem value={group.groupId}>
+                        {groups.map(group => (
+                          <SelectItem value={group.groupId} key={group.groupId}>
                             {group.groupName}
                           </SelectItem>
                         ))}

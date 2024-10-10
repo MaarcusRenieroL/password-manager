@@ -4,6 +4,8 @@ import { server } from "~/lib/trpc/server";
 import { ExportPasswordsModal } from "~/components/dashboard/modals/export-passwords-modal";
 import { ImportPasswordsModal } from "~/components/dashboard/modals/import-passwords-modal";
 
+export const dynamic = "force-dynamic";
+
 export default async function DashboardPage() {
   const passwords = await server.password.getPasswords();
   const groups = await server.group.getGroups();

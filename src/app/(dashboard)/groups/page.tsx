@@ -2,6 +2,8 @@ import { AddNewGroupModal } from "~/components/dashboard/modals/add-new-group";
 import { GroupsTableShell } from "~/components/table-shell/groups";
 import { server } from "~/lib/trpc/server";
 
+export const dynamic = "force-dynamic";
+
 export default async function GroupsPage() {
   const groups = await server.group.getGroups();
   return (

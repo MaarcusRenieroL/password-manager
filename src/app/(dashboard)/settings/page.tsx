@@ -1,6 +1,8 @@
 import { AccountForm } from "~/components/dashboard/settings/account-form";
 import { server } from "~/lib/trpc/server";
 
+export const dynamic = "force-dynamic";
+
 export default async function SettingsPage() {
   const user = await server.user.getUser();
   return (

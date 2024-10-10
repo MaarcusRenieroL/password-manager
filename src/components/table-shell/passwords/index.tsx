@@ -21,9 +21,7 @@ export const PasswordsTableShell: FC<Props> = ({ data, groups }) => {
         header: ({ table }) => (
           <Checkbox
             checked={table.getIsAllPageRowsSelected()}
-            onCheckedChange={(value) =>
-              table.toggleAllPageRowsSelected(!!value)
-            }
+            onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
             aria-label="Select all"
             className="translate-y-[2px]"
           />
@@ -31,7 +29,7 @@ export const PasswordsTableShell: FC<Props> = ({ data, groups }) => {
         cell: ({ row }) => (
           <Checkbox
             checked={row.getIsSelected()}
-            onCheckedChange={(value) => row.toggleSelected(!!value)}
+            onCheckedChange={value => row.toggleSelected(!!value)}
             aria-label="Select row"
             className="translate-y-[2px]"
           />
@@ -117,7 +115,7 @@ export const PasswordsTableShell: FC<Props> = ({ data, groups }) => {
         ),
       },
     ],
-    [],
+    [groups]
   );
 
   return (

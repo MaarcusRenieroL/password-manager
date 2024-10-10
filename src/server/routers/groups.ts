@@ -101,7 +101,7 @@ export const groupRouter = router({
         };
       } catch (error: any) {
         console.log(
-          "================== ADD NEW GROUP PROCEDURE ==================",
+          "================== ADD NEW GROUP PROCEDURE =================="
         );
         console.log(error.message);
 
@@ -168,7 +168,7 @@ export const groupRouter = router({
         };
       } catch (error: any) {
         console.log(
-          "==================== UPDATE GROUP PROCEDURE ====================",
+          "==================== UPDATE GROUP PROCEDURE ===================="
         );
         console.log(error.message);
         throw new TRPCError({
@@ -213,7 +213,7 @@ export const groupRouter = router({
         }
 
         if (!groupId) {
-          throw new TRPC({
+          throw new TRPCError({
             code: "BAD_REQUEST",
             message: "Missing required fields",
           });
@@ -231,7 +231,7 @@ export const groupRouter = router({
         };
       } catch (error: any) {
         console.log(
-          "=================== DELETE GROUP PROCEDURE ===================",
+          "=================== DELETE GROUP PROCEDURE ==================="
         );
         console.log(error.message);
         throw new TRPCError({
@@ -241,4 +241,3 @@ export const groupRouter = router({
       }
     }),
 });
-
